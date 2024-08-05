@@ -1,0 +1,44 @@
+.icon{
+
+
+
+width: 10rem;
+
+
+}
+
+.img{
+
+display: flex;
+
+align-items: center;
+
+justify-content: center;
+
+
+}
+
+.action{
+
+    display: flex;
+
+    align-items: center;
+    
+    justify-content: center;
+
+}
+
+.titulo{
+display: block;
+
+    color: white;
+}
+
+.container{
+
+
+margin-top: 5%;
+
+    text-align: center;
+}
+
