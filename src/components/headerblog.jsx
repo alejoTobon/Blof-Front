@@ -11,28 +11,27 @@ const Header = ({ userId }) => {
   const [contenido, setContenido] = useState('');
   const [fechaPublicacion, setFechaPublicacion] = useState('');
   const [imagen, setImagen] = useState(null);
-  const [comentarioContenido, setComentarioContenido] = useState('');
-  const [publicacionId, setPublicacionId] = useState('');
 
   const handleFileChange = (e) => {
     setImagen(e.target.files[0]);
   };
 
-  const handleComentarioSubmit = async (e) => {
+  const handlePublicacionSubmit = async (e) => {
     e.preventDefault();
 
+    const formData = new FormData();
+    formData.append('titulo', titulo);
+    formData.append('contenido', contenido);
+    formData.append('fechaPublicacion', fechaPublicacion);
+    formData.append('usuarioId', 1); // Pasar el userId del usuario autenticado
+    if (imagen) {
+      formData.append('imagen', imagen);
+    }
+
     try {
-      const response = await fetch('https://blog-ci2f.onrender.com/comentario/crear', {
+      const response = await fetch('https://blog-ci2f.onrender.com/publicacion/crear', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contenido: comentarioContenido,
-          fechaPublicacion,
-          usuarioId: 1,
-          publicacionId
-        })
+        body: formData,
       });
 
       const result = await response.json(); // Leer la respuesta JSON
@@ -40,11 +39,11 @@ const Header = ({ userId }) => {
       if (response.ok) {
         Swal.fire({
           icon: 'success',
-          title: 'Comentario creado con éxito',
-          text: 'El comentario se ha creado correctamente.',
+          title: 'Publicación creada con éxito',
+          text: 'La publicación se ha creado correctamente.',
           confirmButtonText: 'Aceptar'
         }).then(() => {
-          const modalElement = document.getElementById('crearComentarioModal');
+          const modalElement = document.getElementById('crearPublicacionModal');
           const modal = bootstrap.Modal.getInstance(modalElement);
           modal.hide();
           window.location.reload(); // Recargar la página si es necesario
@@ -53,16 +52,16 @@ const Header = ({ userId }) => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: result.message || 'Hubo un problema al crear el comentario.',
+          text: result.mensaje || 'Hubo un problema al crear la publicación.',
           confirmButtonText: 'Aceptar'
         });
       }
     } catch (error) {
-      console.error('Error al crear el comentario:', error);
+      console.error('Error al crear la publicación:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al crear el comentario.',
+        text: 'Hubo un problema al crear la publicación.',
         confirmButtonText: 'Aceptar'
       });
     }
@@ -112,36 +111,47 @@ const Header = ({ userId }) => {
             <span style={{ color: 'white', display: 'none' }}>Alejandro Tobón</span> {/* Ocultar nombre para la responsividad */}
           </div>
 
-          {/* Botón para abrir el modal de comentario */}
+          {/* Botón para abrir el modal de publicación */}
           <button
             type="button"
             className="btn btn-secondary"
             data-bs-toggle="modal"
-            data-bs-target="#crearComentarioModal"
+            data-bs-target="#crearPublicacionModal"
           >
-            Crear Comentario
+            Crear Publicación
           </button>
         </div>
       </nav>
 
-      {/* Modal para crear comentario */}
-      <div className="modal fade" id="crearComentarioModal" tabindex="-1" aria-labelledby="crearComentarioModalLabel" aria-hidden="true">
+      {/* Modal para crear publicación */}
+      <div className="modal fade" id="crearPublicacionModal" tabIndex="-1" aria-labelledby="crearPublicacionModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5" id="crearComentarioModalLabel">Crear Comentario</h1>
+              <h1 className="modal-title fs-5" id="crearPublicacionModalLabel">Crear Publicación</h1>
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
-              <form onSubmit={handleComentarioSubmit}>
+              <form onSubmit={handlePublicacionSubmit}>
                 <div className="form-group mb-3">
-                  <label htmlFor="comentarioContenido">Contenido:</label>
+                  <label htmlFor="titulo">Título:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="titulo"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group mb-3">
+                  <label htmlFor="contenido">Contenido:</label>
                   <textarea
                     className="form-control"
-                    id="comentarioContenido"
+                    id="contenido"
                     rows="4"
-                    value={comentarioContenido}
-                    onChange={(e) => setComentarioContenido(e.target.value)}
+                    value={contenido}
+                    onChange={(e) => setContenido(e.target.value)}
                     required
                   ></textarea>
                 </div>
@@ -157,19 +167,17 @@ const Header = ({ userId }) => {
                   />
                 </div>
                 <div className="form-group mb-3">
-                  <label htmlFor="publicacionId">ID de Publicación:</label>
+                  <label htmlFor="imagen">Imagen:</label>
                   <input
-                    type="text"
+                    type="file"
                     className="form-control"
-                    id="publicacionId"
-                    value={publicacionId}
-                    onChange={(e) => setPublicacionId(e.target.value)}
-                    required
+                    id="imagen"
+                    onChange={handleFileChange}
                   />
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                  <button type="submit" className="btn btn-primary">Crear Comentario</button>
+                  <button type="submit" className="btn btn-primary">Crear Publicación</button>
                 </div>
               </form>
             </div>

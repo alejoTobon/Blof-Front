@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle';
+import Swal from 'sweetalert2'; // Importar SweetAlert
 import img from '../assets/Captura de pantalla 2024-07-09 071854.png';
 import './login.css';
 import './general.css';
@@ -21,24 +22,39 @@ const Login = () => {
       const response = await fetch('https://blog-ci2f.onrender.com/login/ingreso', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, contrasena })
+        body: JSON.stringify({ email, contrasena }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Autenticado con éxito:', data);
-        // Guardar userId en el almacenamiento local
-        localStorage.setItem('userId', data.userId); // Asegúrate de que data.userId contenga el valor correcto
-        navigate('/inicio'); // Redirige a la página de inicio después del login exitoso
+        Swal.fire({
+          icon: 'success',
+          title: 'Inicio de sesión exitoso',
+          text: 'Has iniciado sesión correctamente.',
+          confirmButtonText: 'Aceptar',
+        }).then(() => {
+          // Guardar userId en el almacenamiento local
+          localStorage.setItem('userId', data.userId); // Asegúrate de que data.userId contenga el valor correcto
+          navigate('/inicio'); // Redirige a la página de inicio después del login exitoso
+        });
       } else {
-        console.error('Error de autenticación:', data.message);
-        // Aquí puedes mostrar un mensaje de error al usuario
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de autenticación',
+          text: data.message || 'Hubo un problema al iniciar sesión.',
+          confirmButtonText: 'Aceptar',
+        });
       }
     } catch (error) {
       console.error('Error en la solicitud:', error);
-      // Aquí puedes mostrar un mensaje de error al usuario
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema con la solicitud. Por favor, intenta de nuevo.',
+        confirmButtonText: 'Aceptar',
+      });
     }
   };
 
