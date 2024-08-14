@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'; // Importa useNavigate si estás
 import './createuser.css';
 import './general.css';
 
-const CreateUser = () => {
+const CreateUser =   () => {
     const [formData, setFormData] = useState({
         nombre: '',
         foto: null,
@@ -15,7 +15,7 @@ const CreateUser = () => {
         contrasena: '',
         RolId: '' // Mantén esto como una cadena para manejarlo más fácilmente en el formulario
     });
-
+  
     const navigate = useNavigate(); // Inicializa useNavigate
 
     const handleChange = (e) => {
@@ -34,8 +34,8 @@ const CreateUser = () => {
         data.append('foto', formData.foto);  // Aquí debería ser un archivo
         data.append('email', formData.email);
         data.append('contrasena', formData.contrasena);
-        data.append('RolId', parseInt(formData.RolId, 10)); // Asegúrate de convertir a número
-
+        data.append('RolId', parseInt(2, 10)); // Asegúrate de convertir a número
+        localStorage.setItem('userName', formData.nombre);
         try {
             const response = await fetch('https://blog-ci2f.onrender.com/usuarios/crear', {
                 method: 'POST',
@@ -46,6 +46,11 @@ const CreateUser = () => {
             if (response.ok) {
                 const result = await response.json();
                 console.log('Usuario creado:', result);
+                
+                
+              
+         
+                
 
                 // Mostrar SweetAlert2
                 await Swal.fire({
@@ -95,7 +100,7 @@ const CreateUser = () => {
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="foto" className="form-label">Foto</label>
-                                <input type="file" className="form-control" id="foto" onChange={handleChange} />
+                                <input type="file" className="form-control" name='foto' id="foto" onChange={handleChange} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email</label>
@@ -106,8 +111,8 @@ const CreateUser = () => {
                                 <input type="password" className="form-control" id="contrasena" value={formData.contrasena} onChange={handleChange} />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="RolId" className="form-label">Rol</label>
-                                <input type="number" className="form-control" id="RolId" value={formData.RolId} onChange={handleChange} />
+                      
+                                <input type="number" className="form-control" id="RolId" value={formData.RolId} hidden onChange={handleChange} />
                             </div>
                             <button type="submit" className="btn btn-primary w-100">Guardar</button>
                         </form>

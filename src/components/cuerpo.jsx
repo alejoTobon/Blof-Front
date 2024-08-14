@@ -5,15 +5,22 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
-const Contenido = ({ userId }) => {
+const Contenido = () => {
   const [publicaciones, setPublicaciones] = useState([]);
   const [comentario, setComentario] = useState('');
-  const [comentarioFecha, setComentarioFecha] = useState('');
   const [publicacionId, setPublicacionId] = useState(null);
   const [comentarios, setComentarios] = useState([]);
+  const [userId, setUserId] = useState('');
   const modalRef = useRef(null);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Devuelve solo la parte de la fecha YYYY-MM-DD
+  };
+
   useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    setUserId(userId);
     const fetchPublicaciones = async () => {
       try {
         const response = await fetch('https://blog-ci2f.onrender.com/publicacion/buscar');
@@ -50,13 +57,15 @@ const Contenido = ({ userId }) => {
   const handleComentar = async (e) => {
     e.preventDefault();
 
+    const fechaActual = new Date().toISOString().split('T')[0]; // Fecha actual en formato YYYY-MM-DD
+
     try {
       const response = await fetch('https://blog-ci2f.onrender.com/comentario/crear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contenido: comentario,
-          fechaPublicacion: comentarioFecha,
+          fechaPublicacion: fechaActual,
           usuarioId: userId,
           publicacionId: publicacionId,
         }),
@@ -65,7 +74,6 @@ const Contenido = ({ userId }) => {
       if (response.ok) {
         Swal.fire('Comentario creado con éxito!', '', 'success');
         setComentario('');
-        setComentarioFecha('');
         if (modalRef.current) {
           const modal = new bootstrap.Modal(modalRef.current);
           modal.hide();
@@ -94,7 +102,7 @@ const Contenido = ({ userId }) => {
                 <h5 className="card-title">{publicacion.titulo}</h5>
                 <p className="card-text flex-grow-1">{publicacion.contenido}</p>
                 <p className="card-text">
-                  <small className="text-muted">{publicacion.fechaPublicacion}</small>
+                  <small className="text-muted">{formatDate(publicacion.fechaPublicacion)}</small>
                 </p>
                 <div className="d-flex flex-column flex-md-row justify-content-between mt-2">
                   <button
@@ -155,17 +163,6 @@ const Contenido = ({ userId }) => {
                     required
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="fechaComentario" className="form-label">Fecha:</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="fechaComentario"
-                    value={comentarioFecha}
-                    onChange={(e) => setComentarioFecha(e.target.value)}
-                    required
-                  />
-                </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cerrar
@@ -205,7 +202,7 @@ const Contenido = ({ userId }) => {
                     <li key={comentario.id} className="list-group-item">
                       <strong>{comentario.usuario.nombre}:</strong> {comentario.contenido}
                       <br />
-                      <small className="text-muted">{comentario.fechaPublicacion}</small>
+                      <small className="text-muted">{formatDate(comentario.fechaPublicacion)}</small>
                     </li>
                   ))}
                 </ul>

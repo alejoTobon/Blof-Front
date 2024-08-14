@@ -15,7 +15,6 @@ const Login = () => {
   const handleRegister = () => {
     navigate('/create-user');
   };
-
   const enviarInicio = async (e) => {
     e.preventDefault();
     try {
@@ -26,17 +25,24 @@ const Login = () => {
         },
         body: JSON.stringify({ email, contrasena }),
       });
-
-      const data = await response.json();
+  
+     
       if (response.ok) {
+        const data = await response.json();
+        const { token, usuarioId, nombre, foto } = data;
+
+        // Guarda los datos en el localStorage o en un estado global
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', usuarioId);
+        localStorage.setItem('userName', nombre);
+        localStorage.setItem('userPhoto', foto);
+  
         Swal.fire({
           icon: 'success',
           title: 'Inicio de sesión exitoso',
           text: 'Has iniciado sesión correctamente.',
           confirmButtonText: 'Aceptar',
         }).then(() => {
-          // Guardar userId en el almacenamiento local
-          localStorage.setItem('userId', data.userId); // Asegúrate de que data.userId contenga el valor correcto
           navigate('/inicio'); // Redirige a la página de inicio después del login exitoso
         });
       } else {

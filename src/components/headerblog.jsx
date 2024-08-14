@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle';
 import Swal from 'sweetalert2'; // Importar SweetAlert
-
+import imagens from '../assets/user-member-avatar-face-profile-icon-vector-22965342.jpg';
 import reactLogo from '../assets/react.svg';
 import './header.css';
 
-const Header = ({ userId }) => {
+const Header = () => {
   const [titulo, setTitulo] = useState('');
   const [contenido, setContenido] = useState('');
   const [fechaPublicacion, setFechaPublicacion] = useState('');
-  const [imagen, setImagen] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [userImage, setUserImage] = useState('');
+  const [imagen, setImagen] = useState(null); // Añadir estado para la imagen
+  const userId = localStorage.getItem('userId'); // Obtener el userId del localStorage
 
+  useEffect(() => {
+    const userName = localStorage.getItem('userName');
+    const userPhoto = localStorage.getItem('userPhoto');
+
+    setUserName(userName);
+    setUserImage(userPhoto);
+  }, []);
+  
   const handleFileChange = (e) => {
     setImagen(e.target.files[0]);
   };
@@ -19,11 +30,21 @@ const Header = ({ userId }) => {
   const handlePublicacionSubmit = async (e) => {
     e.preventDefault();
 
+    if (userId !== '22') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso denegado',
+        text: 'No tienes permiso para crear publicaciones.',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('contenido', contenido);
-    formData.append('fechaPublicacion', fechaPublicacion);
-    formData.append('usuarioId', 1); // Pasar el userId del usuario autenticado
+    formData.append('fechaPublicacion', fechaPublicacion); // La fecha se envía en formato YYYY-MM-DD
+    formData.append('usuarioId', userId); // Usar el userId del usuario autenticado
     if (imagen) {
       formData.append('imagen', imagen);
     }
@@ -67,6 +88,22 @@ const Header = ({ userId }) => {
     }
   };
 
+  const handleLogout = () => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Vas a cerrar sesión. ¿Deseas continuar?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.clear(); // Limpiar el localStorage
+        window.location.href = '/'; // Redirigir al login
+      }
+    });
+  };
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -104,22 +141,34 @@ const Header = ({ userId }) => {
 
           <div className="user d-flex align-items-center">
             <img
-              src="/src/assets/chris-hemsworth.webp"
+              src={imagens}
               alt="Profile"
-              style={{ width: '50px', height: '50px', borderRadius: '50%', marginRight: '10px' }} // Reducir el tamaño de la imagen de perfil
+              style={{ width: '50px', height: '50px', borderRadius: '50%', marginRight: '10px' }}
             />
-            <span style={{ color: 'white', display: 'none' }}>Alejandro Tobón</span> {/* Ocultar nombre para la responsividad */}
+            <span style={{ color: 'white' }}>{userName}</span>
           </div>
 
-          {/* Botón para abrir el modal de publicación */}
-          <button
-            type="button"
-            className="btn btn-secondary"
-            data-bs-toggle="modal"
-            data-bs-target="#crearPublicacionModal"
-          >
-            Crear Publicación
-          </button>
+          <div className="d-flex align-items-center">
+            {/* Botón para abrir el modal de publicación */}
+            <button
+              type="button"
+              className="btn btn-secondary me-2"
+              data-bs-toggle="modal"
+              data-bs-target="#crearPublicacionModal"
+              disabled={userId !== '22'} // Deshabilitar el botón si el usuario no tiene permisos
+            >
+              Crear Publicación
+            </button>
+            
+            {/* Botón para cerrar sesión */}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleLogout}
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </nav>
 
